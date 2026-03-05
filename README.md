@@ -1,10 +1,8 @@
 # CS4422-KernelWare
 ---
 
-<img width="384" height="65" alt="wariowarempg" src="https://github.com/user-attachments/assets/690ac8c3-b3cc-4f14-994f-3e592d77936a" />
+<img width="384" height="65" alt="text-1772727326144" src="https://github.com/user-attachments/assets/29498554-e57c-4a1e-a320-3e2682fd2162" />
 
 ---
 
-
 Dr. Mark Burkley Project making a Linux Kernel Module (LKM.)
-
