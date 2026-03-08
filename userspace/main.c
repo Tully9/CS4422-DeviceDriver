@@ -1,3 +1,7 @@
+#include "input.h"
+#include "games/games.h"
+#include "../shared/kw_ioctl.h"
+
 #include <stdio.h>
 #include <pthread.h>
 #include <fcntl.h>
@@ -12,52 +16,19 @@ int driverFD = 0;
 
 
 void drawGame1();
-void drawGame2();
-void drawGame3();
-void drawGame4();
-void drawGame5();
-void drawGame6();
-void drawGame7();
+
 
 
 void* thread_function(void* arg) {
-    int id = *(int*)arg;
-    printf("Thread %d running\n", id);
+    (void)arg;
+    if (currentScreen >= 0 && currentScreen < num_games) {
+        games[currentScreen].run(driverFD);
+    }
     return NULL;
 }
 
-void* input_thread(void* arg)
-{
-    int fd = open("/dev/kw", O_RDONLY);
-
-    if (fd < 0) {
-        perror("Failed to open /dev/kw"); // flag since if its less than 0, it has failed
-        return NULL;
-    }
-
-    char buffer[16];
-
-    while (1)
-    {
-        int bytes = read(fd, buffer, sizeof(buffer));
-
-        if (bytes > 0)
-        {
-           last_key = buffer[0];
-           
-           if (last_key >= '1' && last_key <= '7')
-           {
-           currentScreen = last_key - '0';
-           }
-        }
-           usleep(1000); 
-    }
-
-
-    
-
-    close(fd);
-    return NULL;
+void *input_thread(void *arg) {
+    return kw_input_thread(arg);  // your function from input.c
 }
 
 void* render_thread(void* arg)
@@ -76,36 +47,15 @@ void* render_thread(void* arg)
 
         switch(currentScreen)
         {
-            case 1 :
-            drawGame1();
-            break;
-
-            case 2:
-            drawGame2();
-            break;
-
-        case 3:
-            drawGame3();
-            break;
-
-        case 4:
-            drawGame4();
-            break;
-
-        case 5:
-            drawGame5();
-            break;
-
-        case 6:
-            drawGame6();
-            break;
-
-        case 7:
-            drawGame7();
-            break;
-
-        default:
-            mvprintw(5,10,"Press 1-7 to choose a minigame");
+            case 1: if(num_games > 0) games[0].draw(); break;
+            case 2: if(num_games > 1) games[1].draw(); break;
+            case 3: if(num_games > 2) games[2].draw(); break;
+            case 4: if(num_games > 3) games[3].draw(); break;
+            case 5: if(num_games > 4) games[4].draw(); break;
+            case 6: if(num_games > 5) games[5].draw(); break;
+            case 7: if(num_games > 6) games[6].draw(); break;
+            default:
+                mvprintw(5, 10, "Press 1-7 to choose a minigame");
         }
 
 
@@ -140,48 +90,25 @@ void drawGame1()
     }
 }
 
-void drawGame2() {
-    mvprintw(3, 5, "MINIGAME 2");
-}
-
-void drawGame3() {
-    mvprintw(3, 5, "MINIGAME 3");
-}
-
-void drawGame4() {
-    mvprintw(3, 5, "MINIGAME 4");
-}
-
-void drawGame5() {
-    mvprintw(3, 5, "MINIGAME 5");
-}
-
-void drawGame6() {
-    mvprintw(3, 5, "MINIGAME 6");
-}
-
-void drawGame7() {
-    mvprintw(3, 5, "MINIGAME 7");
-}
 
 int main() {
 
 
 
-    driverFD = open("/dev/kw" , O_RDWR);
+    driverFD = open("/dev/kernelware", O_RDWR);
     if(driverFD < 0)
     {
         perror("Failed to open the driver");
         return 1;
     }
+    input_init(driverFD);
 
 
     pthread_t threads[NUMOFTHREADS];
     int ids[NUMOFTHREADS];
-    for (int i = 0; i < NUMOFTHREADS; i++)
-     {
-         ids[i] = i;
-        }
+    for (int i = 0; i < NUMOFTHREADS; i++) {
+        ids[i] = i;
+    }
 
 
     if (pthread_create(&threads[0], NULL, input_thread, NULL) != 0) {
