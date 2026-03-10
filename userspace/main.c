@@ -20,6 +20,38 @@ void drawGame6();
 void drawGame7();
 
 
+typedef enum {
+    SCREEN_SELECT = 0,
+    SCREEN_DIFF     = 1,
+    SCREEN_PLAYING  = 2,
+    SCREEN_VICTORY  = 3,
+    SCREEN_DEFEAT   = 4
+} GameState;
+
+
+typedef enum {
+    DIFF_NONE   = 0,
+    DIFF_EASY   = 1,
+    DIFF_MEDIUM = 2,
+    DIFF_HARD   = 3
+} Difficulty;
+
+
+typedef struct {
+    volatile GameState state;
+    volatile Difficulty difficulty;
+    volatile int mistakes;
+    volatile int timeLeft;
+    volatile int score;
+    volatile int resetGame;
+} GameContext;
+
+GameContext ctx = {SCREEN_SELECT, DIFF_NONE, 0, 30, 0, 0};
+
+int maxMistakes[4] = {0, 5, 3, 1};
+int timeLimit[4]   = {0, 60, 45, 30};
+
+
 void* thread_function(void* arg) {
     int id = *(int*)arg;
     printf("Thread %d running\n", id);
