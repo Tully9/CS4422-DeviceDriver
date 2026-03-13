@@ -293,7 +293,7 @@ int main() {
 
 
 
-    driverFD = open("/dev/kw" , O_RDWR);
+    driverFD = open("/dev/kernelware" , O_RDWR);
     if(driverFD < 0)
     {
         perror("Failed to open the driver");
@@ -302,7 +302,6 @@ int main() {
 
 
     pthread_t threads[NUMOFTHREADS];
-    
 
 
     if (pthread_create(&threads[0], NULL, timer_thread, NULL) != 0) {
